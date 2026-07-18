@@ -1,5 +1,6 @@
 """MCP server wrapping remindctl for Apple Reminders integration."""
 
+import shlex
 import subprocess
 from mcp.server import FastMCP
 
@@ -109,6 +110,24 @@ def reminders_complete(ids: str) -> str:
 def reminders_delete(ids: str) -> str:
     """Delete reminders. Pass comma-separated indexes or ID prefixes."""
     return _run(["delete"] + ids.split(",") + ["--force", "--json"])
+
+
+@mcp.tool()
+def remindctl_raw(command: str) -> str:
+    """Run any remindctl command directly. Fallback for operations not covered by other tools.
+
+    Pass the full command string as you would on CLI (without 'remindctl' prefix).
+    --json and --no-input are appended automatically.
+
+    Examples: 'list Shopping --create', 'list OldList --delete --force', 'export --list Work --export-format csv'
+    """
+    args = shlex.split(command)
+    # Append --json and --no-input if not already present
+    if "--json" not in args:
+        args.append("--json")
+    if "--no-input" not in args:
+        args.append("--no-input")
+    return _run(args)
 
 
 if __name__ == "__main__":

@@ -22,6 +22,7 @@ Manage Apple Reminders on macOS via the `remindctl` MCP server. Changes sync thr
 - `reminders_edit` — Edit by index or ID prefix.
 - `reminders_complete` — Mark complete (comma-separated IDs).
 - `reminders_delete` — Delete (comma-separated IDs, forced).
+- `remindctl_raw` — **Fallback.** Run any `remindctl` command directly. For operations not covered by the tools above.
 
 ## Workflow
 
@@ -37,6 +38,7 @@ Manage Apple Reminders on macOS via the `remindctl` MCP server. Changes sync thr
 - **Mode**: `agentic`
 - **Input**: User's intent (show, add, edit, complete, search, etc.)
 - **Output**: Reminder data or confirmation of mutation
+- **Tool selection**: Use the dedicated tool if one exists for the operation. Fall back to `remindctl_raw` for anything else (list management, export, etc.).
 
 ## Tool Usage Notes
 
@@ -46,9 +48,23 @@ Manage Apple Reminders on macOS via the `remindctl` MCP server. Changes sync thr
 |--|--|--|
 | Without list arg | All reminders matching the filter | All lists with metadata (counts) |
 | With list name(s) | Reminders matching filter in that list | All reminders in that list (including completed) |
-| Use when | "What's due today?" "Show overdue" | "What lists do I have?" "Show everything in 買い物リスト" |
+| Use when | "What's due today?" "Show overdue" | "What lists do I have?" "Show everything in a list" |
 
 Filters for `reminders_show`: `today`, `tomorrow`, `week`, `overdue`, `upcoming`, `open`, `completed`, `all`, or `YYYY-MM-DD`.
+
+### remindctl_raw (fallback)
+
+Pass the command string as you would on CLI, without the `remindctl` prefix. `--json` and `--no-input` are appended automatically.
+
+Use for operations that don't have a dedicated tool:
+- **Create a list**: `list Shopping --create`
+- **Rename a list**: `list OldName --rename NewName`
+- **Delete a list**: `list OldList --delete --force`
+- **Export**: `export --list Work --export-format csv`
+- **Info on a single reminder**: `info 4A83`
+- **Open in Reminders.app**: `open 1`
+
+Do NOT use `remindctl_raw` for operations that already have a dedicated tool (show, search, add, edit, complete, delete) — the dedicated tools have better argument validation.
 
 ### Recurring reminders
 
@@ -58,7 +74,7 @@ Both `show` and `lists` return a `recurrenceRule` field when set:
 ```
 Supported: `daily`, `weekly`, `biweekly`, `monthly`, `yearly`, `every N days/weeks/months/years`.
 
-When a recurring reminder is `complete`d, the system automatically advances the due date to the next occurrence. All 31 overdue items means they haven't been completed in a while — they don't need to be deleted, just completed to advance.
+When a recurring reminder is `complete`d, the system automatically advances the due date to the next occurrence. Overdue recurring items don't need to be deleted — just completed to advance.
 
 ### reminders_add
 
