@@ -16,8 +16,8 @@ Lets any MCP-compatible AI assistant (Amazon Quick, Claude Desktop, etc.) read a
 ### 1. Clone & install dependencies
 
 ```bash
-git clone https://github.com/ebi-yade/remindctl-mcp.git ~/remindctl-mcp
-cd ~/remindctl-mcp
+git clone https://github.com/ebi-yade/remindctl-mcp.git
+cd ./remindctl-mcp
 uv venv
 uv pip install mcp
 ```
