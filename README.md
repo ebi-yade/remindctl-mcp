@@ -34,53 +34,29 @@ Open **Settings → Capabilities → Connectors → + Add MCP server** and confi
 
 Replace `/path/to/` with the actual location (e.g. `/Users/you/remindctl-mcp/`).
 
-### 3. Grant Reminders permission (TCC)
+### 3. Grant Reminders permission
 
-On first use, macOS needs to grant the MCP host app access to Reminders.
+macOS controls Reminders access via TCC. Permission is granted to the **host app** that spawns the MCP server process (e.g. Amazon Quick), not to `python` or `remindctl` directly.
 
-1. Make sure Amazon Quick's window is **in the foreground**
-2. Ask the assistant to call `reminders_authorize`
-3. A macOS dialog will appear — click **OK** to allow access
-4. Verify with `reminders_status` → should show `"authorized": true`
+1. Ask the assistant to call `reminders_authorize`
+2. A macOS dialog will appear — click **OK**
+3. Verify with `reminders_status` → should show `"authorized": true`
 
 ## TCC Troubleshooting
 
-macOS controls Reminders access via TCC (Transparency, Consent, and Control). Permission is tied to the **host app** that spawns the MCP server process — not to `python` or `remindctl` directly.
-
-### "Access denied" after it was working
-
-The TCC permission may have been reset (macOS updates, manual reset, etc.).
-
-**Recovery:**
-
-1. Ask the assistant to call `reminders_authorize` — this triggers the macOS permission dialog via `osascript`
-2. If a dialog appears, click **OK**
-3. If no dialog appears and status still shows denied:
+If any tool returns "Reminders access denied", the fix is always the same:
 
 ```bash
-# Reset TCC for the host app to force a fresh prompt
+# 1. Reset permission to trigger a fresh prompt
 tccutil reset Reminders <bundle_id>
-# e.g. for Amazon Quick:
+
+# For Amazon Quick:
 tccutil reset Reminders com.amazon.QuickWork.mac
 ```
 
-Then retry `reminders_authorize`.
+Then ask the assistant to call `reminders_authorize` again and click **OK** on the dialog.
 
-### "Access denied" but no dialog appears
-
-This typically happens when:
-- The host app is **in the background** — bring it to the foreground and retry
-- TCC state is `denied` (not `not-determined`) — you must reset first with `tccutil reset` (see above), then retry
-
-### Permission was accidentally denied
-
-If you clicked "Don't Allow" on the TCC dialog:
-
-1. Reset with `tccutil reset Reminders <bundle_id>`
-2. Call `reminders_authorize` again
-3. This time click **OK**
-
-Or manually: **System Settings → Privacy & Security → Reminders** → find the host app and toggle it on.
+> **Why this happens:** macOS may revoke TCC grants after OS updates, or the user may have accidentally denied the prompt. `tccutil reset` clears the decision so the dialog can appear again.
 
 ## Tools
 
