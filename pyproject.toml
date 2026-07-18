@@ -1,0 +1,13 @@
+[project]
+name = "remindctl-mcp"
+version = "0.1.0"
+description = "MCP server for Apple Reminders via remindctl"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+dependencies = [
+    "mcp>=1.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/ebi-yade/remindctl-mcp"
